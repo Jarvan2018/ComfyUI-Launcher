@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 from celery import shared_task
-from utils import COMFYUI_REPO_URL, create_symlink, create_virtualenv, install_default_custom_nodes, install_pip_reqs, normalize_model_filepaths_in_workflow_json, run_command, run_command_in_project_venv, set_default_workflow_from_launcher_json, set_launcher_state_data, setup_custom_nodes_from_snapshot, setup_files_from_launcher_json, setup_initial_models_folder
+from utils import COMFYUI_REPO_URL, create_symlink, create_virtualenv, install_default_custom_nodes, install_pip_reqs, normalize_model_filepaths_in_workflow_json, run_command, run_command_in_project_venv, set_default_workflow_from_launcher_json, set_launcher_state_data, setup_files_from_launcher_json, setup_initial_models_folder
 
 @shared_task(ignore_result=False)
 def create_comfyui_project(
@@ -70,10 +70,10 @@ def create_comfyui_project(
         create_virtualenv(os.path.join(project_folder_path, 'venv'))
 
         # activate the virtualenv + install comfyui requirements
-        run_command_in_project_venv(
-            project_folder_path,
-            f"pip install -r {os.path.join(project_folder_path, 'comfyui', 'requirements.txt')}",
-        )
+        # run_command_in_project_venv(
+        #     project_folder_path,
+        #     f"pip install -r {os.path.join(project_folder_path, 'comfyui', 'requirements.txt')}",
+        # )
 
         set_launcher_state_data(
             project_folder_path,
@@ -86,11 +86,11 @@ def create_comfyui_project(
         # install default custom nodes
         install_default_custom_nodes(project_folder_path, launcher_json)
 
-        setup_custom_nodes_from_snapshot(project_folder_path, launcher_json)
+        # setup_custom_nodes_from_snapshot(project_folder_path, launcher_json)
 
         # install pip requirements
-        if launcher_json and "pip_requirements" in launcher_json:
-            install_pip_reqs(project_folder_path, launcher_json["pip_requirements"])
+        # if launcher_json and "pip_requirements" in launcher_json:
+        #     install_pip_reqs(project_folder_path, launcher_json["pip_requirements"])
 
         # download all necessary files
         set_launcher_state_data(

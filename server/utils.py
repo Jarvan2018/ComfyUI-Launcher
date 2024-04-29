@@ -158,23 +158,7 @@ def run_command_in_project_comfyui_venv(project_folder_path, command, in_bg=Fals
 
 
 def install_default_custom_nodes(project_folder_path, launcher_json=None):
-    # install default custom nodes
-    # comfyui-manager
-    run_command(["git", "clone", f"https://github.com/ltdrdata/ComfyUI-Manager", os.path.join(project_folder_path, 'comfyui', 'custom_nodes', 'ComfyUI-Manager')])
-
-    # pip install comfyui-manager
-    run_command_in_project_venv(
-        project_folder_path,
-        f"pip install -r {os.path.join(project_folder_path, 'comfyui', 'custom_nodes', 'ComfyUI-Manager', 'requirements.txt')}",
-    )
-
-    run_command(["git", "clone", f"https://github.com/thecooltechguy/ComfyUI-ComfyWorkflows", os.path.join(project_folder_path, 'comfyui', 'custom_nodes', 'ComfyUI-ComfyWorkflows')])
-
-    # pip install comfyui-comfyworkflows
-    run_command_in_project_venv(
-        project_folder_path,
-        f"pip install -r {os.path.join(project_folder_path, 'comfyui', 'custom_nodes', 'ComfyUI-ComfyWorkflows', 'requirements.txt')}",
-    )
+    return
 
 def setup_initial_models_folder(models_folder_path):
     assert not os.path.exists(
@@ -193,58 +177,6 @@ def is_launcher_json_format(import_json):
         return True
     return False
 
-def setup_custom_nodes_from_snapshot(project_folder_path, launcher_json):
-    if not launcher_json:
-        return
-    for custom_node_repo_url, custom_node_repo_info in launcher_json["snapshot_json"][
-        "git_custom_nodes"
-    ].items():
-        if any(
-            [
-                custom_node_to_ignore in custom_node_repo_url
-                for custom_node_to_ignore in CUSTOM_NODES_TO_IGNORE_FROM_SNAPSHOTS
-            ]
-        ):
-            continue
-
-        custom_node_hash = custom_node_repo_info["hash"]
-        custom_node_disabled = custom_node_repo_info["disabled"]
-        if custom_node_disabled:
-            continue
-        custom_node_name = custom_node_repo_url.split("/")[-1].replace(".git", "")
-        custom_node_path = os.path.join(
-            project_folder_path, "comfyui", "custom_nodes", custom_node_name
-        )
-        
-        # Clone the custom node repository
-        run_command(["git", "clone", custom_node_repo_url, custom_node_path, "--recursive"])
-
-        if custom_node_hash:
-            # Checkout the specific hash
-            run_command(["git", "checkout", custom_node_hash], cwd=custom_node_path)
-
-        pip_requirements_path = os.path.join(custom_node_path, "requirements.txt")
-        if os.path.exists(pip_requirements_path):
-            run_command_in_project_venv(
-                project_folder_path,
-                f"pip install -r {os.path.join(custom_node_path, 'requirements.txt')}",
-            )
-
-        pip_requirements_post_path = os.path.join(custom_node_path, "requirements_post.txt")
-        if os.path.exists(pip_requirements_post_path):
-            run_command_in_project_venv(
-                project_folder_path,
-                f"pip install -r {os.path.join(custom_node_path, 'requirements_post.txt')}",
-            )
-
-        install_script_path = os.path.join(custom_node_path, "install.py")
-        if os.path.exists(install_script_path):
-            run_command_in_project_venv(project_folder_path, f"python {install_script_path}")
-
-        # for ComfyUI-CLIPSeg, we need to separately copy the clipseg.py file from ComfyUI-CLIPSeg/custom_nodes into `project_folder_path/comfyui/custom_nodes
-        if custom_node_name == "ComfyUI-CLIPSeg":
-            clipseg_custom_node_file_path = os.path.join(custom_node_path, "custom_nodes", "clipseg.py")
-            shutil.copy(clipseg_custom_node_file_path, os.path.join(project_folder_path, "comfyui", "custom_nodes", "clipseg.py"))
 
 def compute_sha256_checksum(file_path):
     buf_size = 1024
@@ -456,19 +388,7 @@ def set_launcher_state_data(project_folder_path, data: dict):
         json.dump(existing_state, f)
 
 def install_pip_reqs(project_folder_path, pip_reqs):
-    if not pip_reqs:
-        return
-    print("Installing pip requirements...")
-    with open(os.path.join(project_folder_path, "requirements.txt"), "w") as f:
-        for req in pip_reqs:
-            if isinstance(req, str):
-                f.write(req + "\n")
-            elif isinstance(req, dict):
-                f.write(f"{req['_key']}=={req['_version']}\n")
-    run_command_in_project_venv(
-        project_folder_path,
-        f"pip install -r {os.path.join(project_folder_path, 'requirements.txt')}",
-    )
+    return
 
 def get_project_port(id):
     project_path = os.path.join(PROJECTS_DIR, id)
